@@ -28,7 +28,17 @@
         .xp-bar-container { position: fixed; top: 70px; left: 20px; width: 120px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; z-index: 150; }
         #xp-progress { height: 100%; width: 0%; background: var(--neon-color); border-radius: 10px; transition: 1s; }
 
-        .side-controls { position: absolute; left: 15px; bottom: 110px; display: flex; flex-direction: column; gap: 15px; z-index: 50; }
+        .side-controls { 
+            position: absolute; 
+            left: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 25px; 
+            z-index: 50; 
+        }
+        
         .glass-btn { width: 50px; height: 50px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; cursor: pointer; }
         
         .shuffle-btn { position: fixed; top: 80px; right: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 100; border: 1px solid rgba(0,243,255,0.3); }
@@ -70,7 +80,6 @@
         <div id="upload-trigger" class="w-12 h-12 bg-white text-black rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)] active:scale-90 transition-transform">
             <i class="fas fa-plus"></i>
         </div>
-        <i class="fas fa-share-nodes opacity-60 hover:opacity-100 transition-opacity" onclick="shareVideo()"></i>
         <i class="fas fa-random opacity-60 hover:opacity-100 transition-opacity" onclick="shuffleProtocol()"></i>
     </nav>
 
@@ -95,7 +104,13 @@
     </div>
 
     <script>
-        const ADMIN_PASS = "1234"; // الرقم السري للوحة التحكم
+        const ADMIN_PASS = "1234";
+        const AD_LINKS = [
+            "https://www.effectivegatecpm.com/bxwxuk2f39?key=566216691dc8b76a740840e94f68f44c",
+            "https://www.effectivegatecpm.com/k60w64w4gk?key=564f3d8cc4ac85949f218179b742495e"
+        ];
+        let currentAd = 0;
+
         const SHADOW_ID = localStorage.getItem('shadow_uid') || 'UX_' + Math.random().toString(36).substr(2, 6).toUpperCase();
         localStorage.setItem('shadow_uid', SHADOW_ID);
         let userXP = parseInt(localStorage.getItem('shadow_xp')) || 0;
@@ -103,6 +118,12 @@
         const firebaseConfig = { databaseURL: "https://project-717e4-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        function triggerAd() {
+            window.open(AD_LINKS[currentAd], '_blank');
+            currentAd = (currentAd + 1) % AD_LINKS.length;
+            addXP(10);
+        }
 
         function addXP(amount) {
             userXP += amount;
@@ -144,12 +165,13 @@
                             <i class="fas fa-heart ${isLiked ? 'animate-bounce' : ''}"></i>
                             <span class="text-[10px] font-black">${vid.likes || 0}</span>
                         </div>
-                        <div class="glass-btn glass-ui" onclick="toggleChat()">
+                        <div class="glass-btn glass-ui" onclick="toggleSideChat()">
                             <i class="fas fa-terminal"></i>
                             <span class="text-[8px] mt-1">LOGS</span>
                         </div>
-                        <div class="glass-btn glass-ui" onclick="shareVideo()">
+                        <div class="glass-btn glass-ui" onclick="shareVideoWithAd()">
                             <i class="fas fa-arrow-up-right-from-square"></i>
+                            <span class="text-[8px] mt-1 text-white/40">SEND</span>
                         </div>
                     </div>
                 `;
@@ -182,6 +204,7 @@
         }
 
         function toggleLike(vId) {
+            triggerAd();
             addXP(5);
             db.ref(`videos/${vId}`).transaction(p => {
                 if (p) {
@@ -191,6 +214,17 @@
                 }
                 return p;
             });
+        }
+
+        function shareVideoWithAd() {
+            triggerAd();
+            navigator.share({ title: 'SHΔDØW GENESIS', url: window.location.href }).catch(() => {});
+            addXP(10);
+        }
+
+        function toggleSideChat() {
+            triggerAd();
+            toggleChat();
         }
 
         const myWidget = cloudinary.createUploadWidget({ 
@@ -210,11 +244,6 @@
         });
 
         document.getElementById("upload-trigger").onclick = () => { myWidget.open(); };
-
-        function shareVideo() { 
-            navigator.share({ title: 'SHΔDØW GENESIS', url: window.location.href }).catch(() => {});
-            addXP(10); 
-        }
 
         function toggleChat() { 
             const c = document.getElementById('chat-overlay'); 
@@ -268,8 +297,6 @@
                     const v = e.target.querySelector('video');
                     if(e.isIntersecting) {
                         v.play().catch(()=>{});
-                        const colors = ['#00f3ff', '#ff0055', '#00ffaa', '#ccff00', '#7000ff'];
-                        document.documentElement.style.setProperty('--neon-color', colors[Math.floor(Math.random()*colors.length)]);
                     } else { 
                         v.pause(); 
                         v.currentTime = 0; 
