@@ -3,205 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GENESIS | PINK EDITION</title>
+    <title>GENESIS | MAXIMALIST VOID</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Cairo:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cairo:wght@200;900&display=swap');
         
-        :root { --pink-glow: #ff2d55; }
+        :root { 
+            --neon-pink: #ff0055; 
+            --neon-glow: rgba(255, 0, 85, 0.8);
+            --deep-void: #000;
+            --glass-noise: rgba(255, 0, 85, 0.05);
+        }
         
-        body, html { margin: 0; padding: 0; height: 100%; background: #1a050a; color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; transition: background 0.8s ease; }
-        
-        /* شاشة التحميل الوردي */
-        #preloader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
-        .loader-ring { width: 80px; height: 80px; border: 3px solid rgba(255, 45, 85, 0.1); border-top: 3px solid var(--pink-glow); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 15px var(--pink-glow); }
-        .loader-text { margin-top: 20px; font-family: 'Orbitron'; font-size: 12px; letter-spacing: 5px; color: var(--pink-glow); animation: pulse 1.5s infinite; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--deep-void); color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; }
+
+        /* شاشة الدخول الهجومية الصاخبة */
+        #portal { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.8, 0, 0.2, 1); }
+        .portal-ring { width: 150px; height: 150px; border: 5px solid transparent; border-top: 5px solid var(--neon-pink); border-right: 5px solid var(--neon-pink); border-radius: 50%; animation: spin 0.4s linear infinite; }
+        .portal-text { margin-top: 50px; font-family: 'Orbitron'; font-size: 50px; color: var(--neon-pink); tracking: 20px; text-shadow: 0 0 20px var(--neon-pink); animation: text-shake 0.5s infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes text-shake { 0% { transform: translate(0,0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, -5px); } 80% { transform: translate(5px, 5px); } 100% { transform: translate(0,0); } }
 
-        .scroll-engine { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; position: relative; z-index: 10; }
-        .scroll-engine::-webkit-scrollbar { display: none; }
+        /* محرك السكرول الضخم */
+        .maximalist-stream { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .maximalist-stream::-webkit-scrollbar { display: none; }
         
-        .video-segment { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; display: flex; align-items: center; justify-content: center; }
-        .video-container { width: 100%; height: 100%; position: relative; background: #000; }
-        video { width: 100%; height: 100%; object-fit: cover; }
+        .maximalist-slice { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: cover; filter: brightness(1) contrast(1.2); transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(1); }
+        .maximalist-slice.active video { filter: brightness(1.2) contrast(1); transform: scale(1.05); }
 
-        .middle-controls { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 25px; z-index: 100; align-items: center; }
-        .icon-box { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 45, 85, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 45, 85, 0.3); transition: 0.3s; font-size: 1.2rem; }
-        .icon-box i { color: var(--pink-glow); filter: drop-shadow(0 0 5px var(--pink-glow)); }
+        /* واجهة المستخدم الضخمة والضوضائية */
+        .glass-island { background: var(--glass-noise); backdrop-filter: blur(25px) saturate(200%); border: 2px solid rgba(255, 0, 85, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: glass-shake 1s infinite alternate; }
+        
+        @keyframes glass-shake { 0% { transform: translate(0,0); } 100% { transform: translate(2px, 2px); } }
 
-        .pro-watermark { position: absolute; top: 100px; right: 20px; font-family: 'Orbitron'; font-size: 10px; color: var(--pink-glow); border: 1px solid var(--pink-glow); padding: 4px 10px; border-radius: 5px; z-index: 50; text-shadow: 0 0 5px var(--pink-glow); pointer-events: none; background: rgba(0,0,0,0.5); }
+        .side-bar { position: absolute; right: 20px; bottom: 150px; display: flex; flex-direction: column; gap: 30px; z-index: 100; }
+        .maximalist-icon { 
+            width: 70px; height: 70px; border-radius: 25px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            background: rgba(0,0,0,0.6); border: 2px solid rgba(255,0,85,0.4);
+            color: #fff; transition: 0.4s; pointer-events: auto; animation: icon-float 2s infinite alternate;
+        }
+        .maximalist-icon i { font-size: 1.8rem; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+        .maximalist-icon:active { transform: scale(0.9) rotate(5deg); border-color: var(--neon-pink); }
+        .stat-text { font-size: 12px; font-weight: bold; margin-top: 5px; font-family: 'Orbitron'; color: var(--neon-pink); }
 
-        .glass-ui { background: rgba(20, 0, 5, 0.7); backdrop-filter: blur(25px); border: 1px solid rgba(255, 45, 85, 0.2); }
-        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px; height: 70px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 500; }
-        .upload-btn { width: 55px; height: 55px; background: var(--pink-glow); color: #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; transform: translateY(-12px); box-shadow: 0 10px 20px rgba(255, 45, 85, 0.3); cursor: pointer; }
+        @keyframes icon-float { 0% { transform: translate(0,0); } 100% { transform: translate(0px, 5px); } }
 
-        #admin-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(15, 0, 5, 0.95); backdrop-filter: blur(30px); padding: 20px; overflow-y: auto; }
-        .admin-card { background: rgba(255, 45, 85, 0.05); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255, 45, 85, 0.2); position: relative; height: 180px; }
-        .admin-card video { width: 100%; height: 100%; object-fit: cover; }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ff2d55; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; border: 1px solid rgba(255,255,255,0.2); }
+        /* البار السفلي الضخم */
+        .maximalist-dock { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            width: 85%; max-width: 500px; height: 85px; 
+            border-radius: 40px; display: flex; justify-content: space-around; items-center; z-index: 1000;
+        }
+        .maximalist-core-action { 
+            width: 80px; height: 80px; background: linear-gradient(135deg, #ff0055, #800035); 
+            border-radius: 50%; display: flex; items-center; justify-content: center; 
+            transform: translateY(-30px); box-shadow: 0 15px 35px rgba(255, 0, 85, 0.6); border: 6px solid var(--deep-void); cursor: pointer; animation: plus-glow 1s infinite alternate;
+        }
+
+        @keyframes plus-glow { 0% { box-shadow: 0 10px 20px rgba(255, 0, 85, 0.5); } 100% { box-shadow: 0 20px 40px rgba(255, 0, 85, 0.8); } }
+
+        /* لوحة التحكم الضخمة والصاخبة */
+        #maximalist-deck { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(3,0,1,0.98); backdrop-filter: blur(40px); padding: 30px; overflow-y: auto; }
+        .deck-header { font-family: 'Orbitron'; color: var(--neon-pink); display: flex; justify-content: space-between; border-b: 2px solid rgba(255,0,85,0.2); pb: 4; mb: 8; }
+        .grid-capsule { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; pb: 40; }
+        .video-thumbnail { position: relative; border-radius: 30px; overflow: hidden; border: 2px solid rgba(255,0,85,0.2); height: 250px; transition: 0.3s; }
+        .video-thumbnail video { pointer-events: none; }
+        .erase-btn { position: absolute; bottom: 15px; right: 15px; background: rgba(255, 0, 85, 0.9); width: 45px; height: 45px; border-radius: 15px; flex; items-center; justify-content: center; font-size: 15px; }
+
     </style>
 </head>
 <body>
 
-    <div id="preloader">
-        <div class="loader-ring"></div>
-        <div class="loader-text">GENESIS PINK</div>
-    </div>
+    <div id="portal"><div class="portal-ring"></div><p class="portal-text">GENESIS</p></div>
 
-    <header class="fixed top-0 w-full z-[200] glass-ui p-4 flex justify-between items-center">
-        <div class="font-[Orbitron] text-lg" style="color: var(--pink-glow)" id="clock-display">00:00:00</div>
-        <div class="text-[9px] font-[Orbitron] tracking-[3px] text-[#ff2d55] opacity-80">GENESIS_PINK_SYSTEM</div>
+    <header class="fixed top-0 w-full z-[2000] p-6 flex justify-between items-center">
+        <div class="glass-island px-8 py-3 rounded-full flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-pink-500 animate-pulse"></div>
+            <span class="font-[Orbitron] text-pink-500 font-bold tracking-tighter text-2xl">GENESIS.AI</span>
+        </div>
+        <div class="glass-island w-12 h-12 rounded-full flex items-center justify-center" onclick="toggleDeck()">
+            <i class="fas fa-ghost text-pink-500 text-xs"></i>
+        </div>
     </header>
 
-    <div class="scroll-engine" id="video-stack"></div>
+    <main class="maximalist-stream" id="main-stream">
+        <div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 animate-pulse tracking-[10px] text-2xl">SYNCING</div>
+    </main>
 
-    <nav class="bottom-nav glass-ui">
-        <div onclick="location.reload()"><i class="fas fa-th-large text-[#ff2d55]"></i></div>
-        <div onclick="toggleChat()"><i class="fas fa-comment-dots text-[#ff2d55]"></i></div>
-        <div id="upload-trigger" class="upload-btn"><i class="fas fa-plus text-xl"></i></div>
-        <div onclick="toggleAdmin()"><i class="fas fa-sliders-h text-[#ff2d55]"></i></div>
-        <div onclick="shareApp()"><i class="fas fa-share-alt text-[#ff2d55]"></i></div>
+    <nav class="maximalist-dock glass-island">
+        <i class="fas fa-search text-2xl opacity-40 hover:opacity-100 transition-all"></i>
+        <i class="fas fa-network-wired text-2xl opacity-40 hover:opacity-100 transition-all"></i>
+        <div class="maximalist-core-action" id="upload-action"><i class="fas fa-plus text-white text-3xl"></i></div>
+        <i class="fas fa-at text-2xl opacity-40 hover:opacity-100 transition-all"></i>
+        <i class="fas fa-user text-2xl opacity-40 hover:opacity-100 transition-all"></i>
     </nav>
 
-    <div id="admin-overlay">
-        <div class="flex justify-between items-center mb-8 sticky top-0 bg-black/50 p-3 rounded-2xl z-50">
-            <h2 class="font-[Orbitron] text-[#ff2d55]">ADMIN_DELETE</h2>
-            <i class="fas fa-times text-2xl cursor-pointer text-white" onclick="toggleAdmin()"></i>
+    <div id="maximalist-deck">
+        <div class="deck-header">
+            <h2 class="text-2xl font-black tracking-widest">COMMANDER_DECK</h2>
+            <i class="fas fa-times-circle text-3xl text-pink-500 cursor-pointer" onclick="toggleDeck()"></i>
         </div>
-        <div id="admin-grid" class="grid grid-cols-2 gap-4 pb-32"></div>
-    </div>
-
-    <div id="chat-overlay" class="fixed inset-0 z-[1000] glass-ui hidden flex-col p-6">
-        <div class="flex justify-between items-center mb-4 border-b border-[#ff2d55]/20 pb-4">
-            <span class="font-[Orbitron] text-[#ff2d55]">PINK_MESSAGES</span>
-            <i class="fas fa-times text-xl cursor-pointer" onclick="toggleChat()"></i>
-        </div>
-        <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 p-2"></div>
-        <div class="flex gap-2 mt-4 mb-20">
-            <input type="text" id="msg-input" class="flex-1 bg-white/5 p-4 rounded-xl outline-none border border-[#ff2d55]/20" placeholder="اكتب شيئاً...">
-            <button onclick="sendChat()" class="text-[#ff2d55]"><i class="fas fa-paper-plane text-2xl"></i></button>
-        </div>
+        <div id="deck-content" class="grid-capsule"></div>
     </div>
 
     <script>
-        const SHADOW_ID = localStorage.getItem('shadow_uid') || 'G_' + Math.random().toString(36).substr(2, 4).toUpperCase();
-        localStorage.setItem('shadow_uid', SHADOW_ID);
-
         const firebaseConfig = { databaseURL: "https://project-717e4-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const AD_LINKS = [
-            "https://www.effectivegatecpm.com/bxwxuk2f39?key=566216691dc8b76a740840e94f68f44c",
-            "https://www.effectivegatecpm.com/k60w64w4gk?key=564f3d8cc4ac85949f218179b742495e"
-        ];
-        let adIdx = 0;
-        function openAd() { window.open(AD_LINKS[adIdx], '_blank'); adIdx = (adIdx + 1) % AD_LINKS.length; }
+        // إخفاء شاشة الدخول الهجومية
+        window.onload = () => { setTimeout(() => { document.getElementById('portal').style.opacity = '0'; setTimeout(() => document.getElementById('portal').remove(), 1200); }, 2000); };
 
-        function updateClock() { document.getElementById('clock-display').textContent = new Date().toLocaleTimeString('en-GB'); }
-        setInterval(updateClock, 1000);
+        // جلب البيانات بسرعة الضوء
+        db.ref('videos').on('value', (snap) => {
+            const stream = document.getElementById('main-stream');
+            const deck = document.getElementById('deck-content');
+            const data = snap.val();
+            
+            if(!data) {
+                stream.innerHTML = '<div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 tracking-[10px] text-2xl">EMPTY</div>';
+                return;
+            }
 
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('preloader').style.opacity = '0';
-                setTimeout(() => document.getElementById('preloader').style.display = 'none', 500);
-            }, 1500);
-        };
-
-        db.ref('videos').on('value', (snapshot) => {
-            const container = document.getElementById('video-stack');
-            const adminGrid = document.getElementById('admin-grid');
-            const data = snapshot.val();
-            if(!data) return;
-
-            container.innerHTML = ''; adminGrid.innerHTML = '';
+            let sHtml = ''; let dHtml = '';
             Object.keys(data).reverse().forEach(id => {
-                const vid = data[id];
-                
-                const section = document.createElement('section');
-                section.className = 'video-segment';
-                section.innerHTML = `
-                    <div class="video-container">
-                        <div class="pro-watermark">GENESIS PRO</div>
-                        <video loop playsinline preload="metadata" src="${vid.url}" onclick="handleTap(event, '${id}')"></video>
-                        <div class="middle-controls">
-                            <div class="flex flex-col items-center" onclick="like('${id}')">
-                                <div class="icon-box"><i class="fas fa-heart ${vid.likedBy && vid.likedBy[SHADOW_ID] ? 'text-red-500' : ''}"></i></div>
-                                <span class="text-[10px] mt-1 font-bold text-[#ff2d55]">${vid.likes || 0}</span>
+                const v = data[id];
+                sHtml += `
+                    <div class="maximalist-slice">
+                        <video loop playsinline preload="auto" src="${v.url}" onclick="this.paused?this.play():this.pause()"></video>
+                        <div class="side-bar">
+                            <div class="flex flex-col items-center">
+                                <div class="maximalist-icon" onclick="like('${id}')"><i class="fas fa-heart"></i><span class="stat-text">${v.likes || 0}</span></div>
                             </div>
-                            <div class="icon-box" onclick="openAd()"><i class="fas fa-share-nodes"></i></div>
-                            <div class="icon-box" onclick="mute(this)"><i class="fas fa-volume-up"></i></div>
+                            <div class="maximalist-icon" onclick="shareApp()"><i class="fas fa-expand"></i></div>
+                            <div class="maximalist-icon" onclick="window.open('https://google.com')"><i class="fas fa-fire-burner text-yellow-500"></i></div>
                         </div>
                     </div>`;
-                container.appendChild(section);
-
-                adminGrid.innerHTML += `
-                    <div class="admin-card">
-                        <video src="${vid.url}#t=0.5" muted preload="metadata"></video>
-                        <button onclick="deleteVid('${id}')" class="delete-btn"><i class="fas fa-trash"></i></button>
+                dHtml += `
+                    <div class="video-thumbnail">
+                        <video src="${v.url}#t=1" muted preload="metadata"></video>
+                        <button class="erase-btn flex items-center justify-center" onclick="deleteVideo('${id}')"><i class="fas fa-trash text-white"></i></button>
                     </div>`;
             });
-            initObserver();
+            stream.innerHTML = sHtml;
+            deck.innerHTML = dHtml;
+            setupStreamObserver();
         });
 
-        let tapTime = 0;
-        function handleTap(e, id) {
-            const now = Date.now();
-            if (now - tapTime < 300) {
-                like(id);
-                const h = document.createElement('i');
-                h.className = 'fas fa-heart fixed text-7xl text-[#ff2d55] z-[1000] pointer-events-none animate-ping';
-                h.style.left = e.clientX - 40 + 'px'; h.style.top = e.clientY - 40 + 'px';
-                document.body.appendChild(h);
-                setTimeout(() => h.remove(), 700);
-            } else {
-                const v = e.target;
-                v.paused ? v.play() : v.pause();
-            }
-            tapTime = now;
-        }
-
-        function like(id) { db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); db.ref(`videos/${id}/likedBy/${SHADOW_ID}`).set(true); }
-        function mute(btn) { openAd(); const v = btn.closest('.video-container').querySelector('video'); v.muted = !v.muted; btn.innerHTML = v.muted ? '<i class="fas fa-volume-mute text-red-500"></i>' : '<i class="fas fa-volume-up"></i>'; }
-        function shareApp() { navigator.share({url: window.location.href}).catch(()=>{}); }
-        function toggleAdmin() { const a = document.getElementById('admin-overlay'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; }
-        function toggleChat() { document.getElementById('chat-overlay').classList.toggle('hidden'); document.getElementById('chat-overlay').classList.toggle('flex'); }
-        function deleteVid(id) { if(confirm('حذف نهائي؟')) db.ref(`videos/${id}`).remove(); }
-
-        const widget = cloudinary.createUploadWidget({ cloudName: "dssk5tabb", uploadPreset: "bjebvo5p" }, (err, res) => {
-            if (!err && res.event === "success") { db.ref('videos/').push({ url: res.info.secure_url, sender: SHADOW_ID, likes: 0 }); }
-        });
-        document.getElementById("upload-trigger").onclick = () => widget.open();
-
-        function sendChat() {
-            const i = document.getElementById('msg-input');
-            if(i.value.trim()){ db.ref('global_chat').push({u:SHADOW_ID, t:i.value}); i.value=''; }
-        }
-
-        db.ref('global_chat').limitToLast(15).on('value', s => {
-            const box = document.getElementById('chat-box'); box.innerHTML = '';
-            s.forEach(m => {
-                const d = m.val();
-                box.innerHTML += `<div class="bg-white/5 p-3 rounded-xl border-r-2 border-[#ff2d55]"><b class="text-[9px] text-[#ff2d55]">${d.u}</b><p class="text-sm">${d.t}</p></div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-
-        function initObserver() {
+        // محرك تشغيل الفيديوهات الصاخب
+        function setupStreamObserver() {
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target.querySelector('video');
-                    if (entry.isIntersecting) { video && video.play().catch(()=>{}); }
-                    else { video && video.pause(); }
+                entries.forEach(e => {
+                    const vid = e.target.querySelector('video');
+                    if(e.isIntersecting) {
+                        e.target.classList.add('active');
+                        vid?.play().catch(()=>{});
+                    } else {
+                        e.target.classList.remove('active');
+                        vid?.pause();
+                    }
                 });
-            }, { threshold: 0.6 });
-            document.querySelectorAll('.video-segment').forEach(seg => observer.observe(seg));
+            }, { threshold: 0.7 });
+            document.querySelectorAll('.maximalist-slice').forEach(s => observer.observe(s));
         }
+
+        function toggleDeck() { 
+            const d = document.getElementById('maximalist-deck');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function like(id) { db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); }
+        function deleteVideo(id) { if(confirm('SURE?')) db.ref(`videos/${id}`).remove(); }
+        function shareApp() { if(navigator.share) navigator.share({url: window.location.href}); }
+
+        // أداة الرفع الصاخبة
+        const widget = cloudinary.createUploadWidget({ cloudName: "dssk5tabb", uploadPreset: "bjebvo5p" }, (err, res) => {
+            if (!err && res.event === "success") { db.ref('videos/').push({ url: res.info.secure_url, likes: 0 }); }
+        });
+        document.getElementById("upload-action").onclick = () => widget.open();
+
     </script>
 </body>
 </html>
