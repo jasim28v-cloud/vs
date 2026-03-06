@@ -11,45 +11,45 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Cairo:wght@300;900&display=swap');
-        :root { --primary: #ff5500; --nano-glow: rgba(255, 85, 0, 0.6); }
+        :root { --primary: #ff5500; --nano-glow: rgba(255, 85, 0, 0.6); --v-filter: none; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { background: #000; color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; width: 100vw; position: fixed; }
 
-        .video-container { height: 100vh; width: 100vw; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; z-index: 1; }
-        .video-container::-webkit-scrollbar { display: none; }
-        .video-scroll-item { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; object-fit: cover; }
+        /* [ADDITION 5] Particle Background Container */
+        #particle-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.3; }
 
-        /* العلامة المائية الفخمة داخل كل فيديو */
+        .video-container { height: 100vh; width: 100vw; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; z-index: 1; position: relative; }
+        .video-container::-webkit-scrollbar { display: none; }
+        .video-scroll-item { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: transparent; display: flex; align-items: center; justify-content: center; }
+        
+        /* [ADDITION 3] Video Filter Support */
+        video { width: 100%; height: 100%; object-fit: cover; filter: var(--v-filter); transition: filter 0.3s ease; }
+
         .brand-watermark { position: absolute; top: 15%; right: 20px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; color: rgba(255, 255, 255, 0.15); pointer-events: none; z-index: 10; letter-spacing: 5px; text-transform: uppercase; border-right: 2px solid var(--primary); padding-right: 10px; }
 
-        /* واجهة الساعة العلوية */
         .top-nav { position: fixed; top: 0; width: 100%; z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .digital-clock { font-family: 'Orbitron'; color: var(--primary); font-size: 14px; text-shadow: 0 0 10px var(--nano-glow); }
 
         .progress-bar-container { position: fixed; top: 55px; width: 100%; height: 2px; background: rgba(255,255,255,0.1); z-index: 101; }
         #nano-progress { height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 15px var(--primary); transition: width 0.1s linear; }
 
-        /* الأزرار الجانبية اليسرى (تفاعل نانوي) */
         .left-actions { position: absolute; left: 15px; top: 45%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 150; align-items: center; }
-        .nano-btn { width: 45px; height: 45px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(255,85,0,0.2); color: #fff; transition: 0.4s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .nano-btn { width: 45px; height: 45px; background: rgba(0,0,0,0.3); backdrop-filter: blur(15px); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(255,85,0,0.2); color: #fff; transition: 0.4s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; }
         .nano-btn:active { transform: scale(0.9); border-color: var(--primary); }
-        .btn-admin { opacity: 0.4; border-style: dashed; font-size: 16px; } /* لوحة التحكم المائية */
+        .btn-admin { opacity: 0.4; border-style: dashed; font-size: 16px; }
 
-        /* معلومات الفيديو والهاشتاج */
         .video-meta { position: absolute; bottom: 90px; right: 15px; text-align: right; z-index: 50; }
         .nano-hashtag { color: var(--primary); font-weight: 900; font-size: 13px; text-shadow: 0 0 8px var(--nano-glow); letter-spacing: 1px; }
 
-        /* الشريط السفلي النانوي */
         .nano-bar { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,85,0,0.2); display: flex; justify-content: space-around; align-items: center; z-index: 200; }
         .bar-icon { font-size: 22px; color: rgba(255,255,255,0.4); transition: 0.3s; }
         .bar-icon.active { color: var(--primary); filter: drop-shadow(0 0 8px var(--primary)); }
         .center-up { background: var(--primary); color: #fff; width: 50px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--nano-glow); }
 
-        /* نافذة الدردشة */
-        #chat-modal { display: none; position: fixed; bottom: 85px; left: 15px; right: 15px; height: 300px; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-radius: 25px; border: 1px solid var(--primary); z-index: 1000; padding: 15px; }
+        #chat-modal { display: none; position: fixed; bottom: 85px; left: 15px; right: 15px; height: 350px; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-radius: 25px; border: 1px solid var(--primary); z-index: 1000; padding: 15px; flex-direction: column; }
+        #chat-content { flex: 1; overflow-y: auto; padding-bottom: 10px; }
+        .chat-input-area { display: flex; gap: 8px; border-top: 1px solid rgba(255,85,0,0.2); pt-3; }
 
-        /* لوحة التحكم */
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; padding: 25px; overflow-y: auto; }
 
         .heart-nano { position: absolute; font-size: 80px; color: var(--primary); pointer-events: none; z-index: 1000; animation: glowFade 0.8s ease-out forwards; }
@@ -57,6 +57,8 @@
     </style>
 </head>
 <body>
+
+    <canvas id="particle-canvas"></canvas>
 
     <div class="top-nav">
         <div class="digital-clock" id="nano-clock">00:00:00</div>
@@ -70,9 +72,9 @@
     </div>
 
     <div id="chat-modal">
-        <div id="chat-content" class="h-48 overflow-y-auto text-[11px] space-y-3 mb-3 scrollbar-hide"></div>
-        <div class="flex gap-2">
-            <input type="text" id="chat-msg" class="flex-1 bg-white/10 rounded-xl px-4 text-xs border border-orange-900 focus:border-orange-500" placeholder="أرسل نبضة نانوية...">
+        <div id="chat-content" class="text-[11px] space-y-3 scrollbar-hide"></div>
+        <div class="chat-input-area mt-2">
+            <input type="text" id="chat-msg" class="flex-1 bg-white/10 rounded-xl px-4 py-2 text-xs border border-orange-900 focus:border-orange-500 text-white" placeholder="أرسل نبضة نانوية...">
             <button onclick="sendMsg()" class="text-orange-500 p-2"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -96,8 +98,17 @@
         const db = firebase.database();
 
         function realShare() {
-            if (navigator.share) navigator.share({ title: 'SHΔDØW', url: window.location.href });
-            else alert("Link: " + window.location.href);
+            if (navigator.share) {
+                navigator.share({ title: 'SHΔDØW NANO', url: window.location.href });
+            } else {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = window.location.href;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                alert("تم نسخ الرابط!");
+            }
         }
 
         const widget = cloudinary.createUploadWidget({ 
@@ -127,11 +138,12 @@
                     
                     <div class="left-actions">
                         <div class="nano-btn btn-admin" onclick="toggleAdmin()"><i class="fas fa-shield-halved"></i></div>
-                        <div class="nano-btn" onclick="like('${id}')">
-                            <i class="fas fa-heart text-white"></i>
+                        <div class="nano-btn" onclick="like(event, '${id}')">
+                            <i class="fas fa-heart"></i>
                             <span class="absolute -bottom-5 text-[9px] font-bold text-orange-500">${v.likes || 0}</span>
                         </div>
-                        <div class="nano-btn" onclick="muteVid(event, '${id}')"><i class="fas fa-volume-up"></i></div>
+                        <div class="nano-btn" onclick="muteVid(event)"><i class="fas fa-volume-up"></i></div>
+                        <div class="nano-btn" onclick="cycleFilter(event)"><i class="fas fa-wand-magic-sparkles"></i></div>
                     </div>
 
                     <div class="video-meta">
@@ -151,48 +163,73 @@
             initObs();
         });
 
-        function trackProg(v) {
-            const rect = v.parentElement.getBoundingClientRect();
-            if (Math.abs(rect.top) < 10) document.getElementById('nano-progress').style.width = (v.currentTime/v.duration)*100 + "%";
+        // [ADDITION 3] Video Filter Logic
+        const filters = ['none', 'sepia(0.8) contrast(1.2)', 'grayscale(1) brightness(0.8)', 'hue-rotate(180deg) saturate(2)', 'invert(1) brightness(0.7)'];
+        let currentFilterIdx = 0;
+        function cycleFilter(e) {
+            e.stopPropagation();
+            currentFilterIdx = (currentFilterIdx + 1) % filters.length;
+            document.documentElement.style.setProperty('--v-filter', filters[currentFilterIdx]);
+            
+            // Visual feedback on button
+            const icon = e.currentTarget.querySelector('i');
+            icon.style.color = currentFilterIdx === 0 ? '#fff' : 'var(--primary)';
+            icon.style.filter = currentFilterIdx === 0 ? 'none' : 'drop-shadow(0 0 5px var(--primary))';
         }
 
-        function muteVid(e, id) {
+        function trackProg(v) {
+            const container = document.getElementById('nano-feed');
+            const rect = v.getBoundingClientRect();
+            if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                document.getElementById('nano-progress').style.width = (v.currentTime / v.duration) * 100 + "%";
+            }
+        }
+
+        function muteVid(e) {
             e.stopPropagation();
-            const v = e.target.closest('.video-scroll-item').querySelector('video');
-            v.muted = !v.muted;
-            e.currentTarget.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            const btn = e.currentTarget;
+            const video = btn.closest('.video-scroll-item').querySelector('video');
+            video.muted = !video.muted;
+            btn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
         }
 
         let lastT = 0;
         function handleVid(e, id) {
             const now = Date.now();
+            const video = e.target;
             if(now - lastT < 300) {
-                like(id);
+                like(null, id);
                 const h = document.createElement('i'); h.className = 'fas fa-heart heart-nano';
                 h.style.left = e.clientX + 'px'; h.style.top = e.clientY + 'px';
                 document.body.appendChild(h); setTimeout(() => h.remove(), 800);
-            } else { e.target.paused ? e.target.play() : e.target.pause(); }
+            } else { video.paused ? video.play() : video.pause(); }
             lastT = now;
         }
 
-        function like(id) { db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); }
+        function like(e, id) { if(e) e.stopPropagation(); db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); }
         function del(id) { if(confirm('حذف نهائي؟')) db.ref(`videos/${id}`).remove(); }
-        function toggleChat() { const m = document.getElementById('chat-modal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        
+        function toggleChat() { 
+            const m = document.getElementById('chat-modal'); 
+            m.style.display = (m.style.display === 'none' || m.style.display === '') ? 'flex' : 'none'; 
+        }
+
         function toggleAdmin() {
-            if(MY_ID.includes("GHOST")) {
-                const p = document.getElementById('admin-panel');
-                p.style.display = p.style.display === 'block' ? 'none' : 'block';
-            } else alert("الوصول للمسؤول فقط");
+            const p = document.getElementById('admin-panel');
+            p.style.display = (p.style.display === 'none' || p.style.display === '') ? 'block' : 'none';
         }
 
         function sendMsg() {
             const i = document.getElementById('chat-msg');
-            if(i.value) { db.ref('global_chat').push({ u: MY_ID, t: i.value }); i.value = ''; }
+            if(i.value.trim()) { db.ref('global_chat').push({ u: MY_ID, t: i.value, ts: Date.now() }); i.value = ''; }
         }
 
-        db.ref('global_chat').limitToLast(15).on('value', s => {
+        db.ref('global_chat').limitToLast(20).on('value', s => {
             const box = document.getElementById('chat-content'); box.innerHTML = '';
-            s.forEach(c => { const m = c.val(); box.innerHTML += `<div><b class="text-orange-500">${m.u}:</b> <span class="text-gray-300">${m.t}</span></div>`; });
+            s.forEach(c => { 
+                const m = c.val(); 
+                box.innerHTML += `<div class="mb-1"><b class="text-orange-500">${m.u}:</b> <span class="text-gray-300">${m.t}</span></div>`; 
+            });
             box.scrollTop = box.scrollHeight;
         });
 
@@ -200,9 +237,14 @@
             const obs = new IntersectionObserver((es) => {
                 es.forEach(e => {
                     const v = e.target.querySelector('video');
-                    if(e.isIntersecting) v.play().catch(()=>{}); else { v.pause(); v.currentTime = 0; }
+                    if(e.isIntersecting) {
+                        v.play().catch(()=>{});
+                    } else {
+                        v.pause();
+                        v.currentTime = 0;
+                    }
                 });
-            }, { threshold: 0.7 });
+            }, { threshold: 0.6 });
             document.querySelectorAll('.video-scroll-item').forEach(i => obs.observe(i));
         }
 
@@ -210,6 +252,50 @@
             const d = new Date();
             document.getElementById('nano-clock').textContent = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0')+":"+d.getSeconds().toString().padStart(2,'0');
         }, 1000);
+
+        document.getElementById('chat-msg').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMsg(); });
+
+        // [ADDITION 5] Particle System Script
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = Math.random() > 0.1 ? '#ff5500' : '#fff';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() { particles = []; for (let i = 0; i < 50; i++) particles.push(new Particle()); }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
     </script>
 </body>
 </html>
