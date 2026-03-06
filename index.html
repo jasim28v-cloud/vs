@@ -43,10 +43,23 @@
         
         .shuffle-btn { position: fixed; top: 80px; right: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 100; border: 1px solid rgba(0,243,255,0.3); }
 
-        @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
-        .loading-text { animation: pulse 1s infinite alternate; }
-
         .video-info { position: absolute; bottom: 100px; right: 20px; text-align: right; pointer-events: none; z-index: 40; }
+
+        /* العلامة المائية */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            user-select: none;
+        }
 
         .admin-panel { position: fixed; inset: 0; z-index: 500; background: #050505; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
         .admin-card { background: #111; border: 1px solid #222; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -70,7 +83,7 @@
     <main class="scroll-engine" id="video-stack">
         <div class="h-full flex flex-col items-center justify-center">
             <i class="fas fa-circle-notch fa-spin text-3xl neon-text mb-4"></i>
-            <span class="loading-text text-[10px] font-[Orbitron]">SYNCHRONIZING_CORE...</span>
+            <span class="loading-text text-[10px] font-[Orbitron] animate-pulse">SYNCHRONIZING_CORE...</span>
         </div>
     </main>
 
@@ -155,6 +168,7 @@
                 section.className = 'video-segment';
                 const isLiked = vid.likedBy && vid.likedBy[SHADOW_ID];
                 section.innerHTML = `
+                    <div class="watermark">SHΔDØW GENESIS</div>
                     <video loop playsinline src="${vid.url}" onclick="togglePlay(this)"></video>
                     <div class="video-info">
                         <div class="text-[10px] opacity-50 mb-1">SOURCE: ${vid.sender || 'UNKNOWN'}</div>
@@ -297,6 +311,9 @@
                     const v = e.target.querySelector('video');
                     if(e.isIntersecting) {
                         v.play().catch(()=>{});
+                        // العودة للألوان الأيونية المتغيرة عند التمرير
+                        const colors = ['#00f3ff', '#ff0055', '#00ffaa', '#ccff00', '#7000ff', '#ffaa00'];
+                        document.documentElement.style.setProperty('--neon-color', colors[Math.floor(Math.random()*colors.length)]);
                     } else { 
                         v.pause(); 
                         v.currentTime = 0; 
