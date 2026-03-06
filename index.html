@@ -3,181 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GENESIS | ULTRA PLUS</title>
+    <title>GENESIS | MAXIMALIST VOID & LIVE CHAT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Cairo:wght@300;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cairo:wght@200;900&display=swap');
         
         :root { 
-            --ultra-pink: #ff007a; 
-            --ultra-glow: rgba(255, 0, 122, 0.6);
-            --glass-bg: rgba(15, 2, 8, 0.85);
+            --neon-pink: #ff0055; 
+            --neon-glow: rgba(255, 0, 122, 0.8);
+            --deep-void: #000;
+            --glass-noise: rgba(255, 0, 85, 0.05);
         }
         
-        body, html { margin: 0; padding: 0; height: 100%; background: #050002; color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--deep-void); color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; }
 
-        /* نظام الألترا بلاس - خلفية ديناميكية */
-        .ultra-bg { position: fixed; inset: 0; background: radial-gradient(circle at top right, #250012, #000); z-index: -1; }
+        /* شاشة الدخول الهجومية الصاخبة */
+        #portal { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.8, 0, 0.2, 1); }
+        .portal-ring { width: 150px; height: 150px; border: 5px solid transparent; border-top: 5px solid var(--neon-pink); border-right: 5px solid var(--neon-pink); border-radius: 50%; animation: spin 0.4s linear infinite; }
+        .portal-text { margin-top: 50px; font-family: 'Orbitron'; font-size: 50px; color: var(--neon-pink); tracking: 20px; text-shadow: 0 0 20px var(--neon-pink); animation: text-shake 0.5s infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes text-shake { 0% { transform: translate(0,0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, -5px); } 80% { transform: translate(5px, 5px); } 100% { transform: translate(0,0); } }
+
+        /* محرك السكرول الضخم */
+        .maximalist-stream { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .maximalist-stream::-webkit-scrollbar { display: none; }
         
-        /* شاشة التحميل الحديثة */
-        #ultra-loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; transition: 0.8s; }
-        .ultra-spinner { width: 60px; height: 60px; border-radius: 50%; background: conic-gradient(from 0deg, transparent, var(--ultra-pink)); animation: rotate 0.6s linear infinite; position: relative; }
-        .ultra-spinner::after { content: ''; position: absolute; inset: 4px; background: #000; border-radius: 50%; }
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
-
-        /* حاوية الفيديوهات */
-        .ultra-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        .ultra-feed::-webkit-scrollbar { display: none; }
+        .maximalist-slice { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .video-card { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; overflow: hidden; }
-        video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        /* واجهة الفيديو المرتبة */
+        .video-wrapper { position: relative; width: 100%; height: 60vh; max-height: 60vh; background: #000; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: cover; filter: brightness(1) contrast(1.2); transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(1); cursor: pointer; }
+        .maximalist-slice.active video { filter: brightness(1.2) contrast(1); transform: scale(1.05); }
 
-        /* أيقونات "ألترا بلاس" الحديثة */
-        .glass-controls { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 15px; z-index: 100; }
-        .ultra-icon { 
-            width: 58px; height: 58px; border-radius: 20px; 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 0, 122, 0.3);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.4s; cursor: pointer;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-        .ultra-icon i { font-size: 1.5rem; background: linear-gradient(180deg, #fff, var(--ultra-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 5px var(--ultra-glow)); }
-        .ultra-icon:active { transform: scale(0.9) rotate(5deg); border-color: var(--ultra-pink); }
-        .stat-text { font-size: 10px; font-weight: bold; margin-top: 2px; font-family: 'Orbitron'; color: var(--ultra-pink); }
+        /* نظام القلوب المتطايرة */
+        .floating-heart { position: absolute; pointer-events: none; color: var(--neon-pink); font-size: 2rem; filter: drop-shadow(0 0 5px var(--neon-pink)); animation: heart-float 1s ease-out forwards; z-index: 1000; }
+        @keyframes heart-float { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-150px) scale(1.5) rotate(360deg); opacity: 0; } }
 
-        /* البار السفلي الحديث */
-        .ultra-nav { 
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            width: 90%; max-width: 420px; height: 75px; 
-            background: var(--glass-bg); backdrop-filter: blur(25px);
-            border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+        /* أدوات التفاعل اليسارية الضخمة (HUD) */
+        .left-hud { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 30px; z-index: 500; }
+        .maximalist-icon { 
+            width: 80px; height: 80px; border-radius: 25px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            background: rgba(0,0,0,0.6); border: 2px solid rgba(255,0,85,0.4);
+            color: #fff; transition: 0.4s; pointer-events: auto; animation: icon-float 2s infinite alternate; cursor: pointer;
         }
-        .center-action { 
-            width: 65px; height: 65px; background: linear-gradient(45deg, var(--ultra-pink), #ff5e00);
-            border-radius: 22px; display: flex; align-items: center; justify-content: center;
-            transform: translateY(-20px); box-shadow: 0 15px 35px rgba(255, 0, 122, 0.4);
-            border: 5px solid #050002; transition: 0.3s;
+        .maximalist-icon i { font-size: 2.2rem; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+        .maximalist-icon:active { transform: scale(0.9) rotate(5deg); border-color: var(--neon-pink); }
+        .stat-text { font-size: 14px; font-weight: bold; margin-top: 8px; font-family: 'Orbitron'; color: var(--neon-pink); }
+
+        @keyframes icon-float { 0% { transform: translate(0,0); } 100% { transform: translate(0px, 5px); } }
+
+        /* نظام الدردشة الحية الصاخب */
+        .live-chat-panel { width: 100%; height: 40vh; max-height: 40vh; background: #000; border-top: 2px solid rgba(255,0,85,0.3); display: flex; flex-direction: column; z-index: 200; }
+        .chat-header { font-family: 'Orbitron'; color: var(--neon-pink); display: flex; justify-content: space-between; align-items: center; border-b: 2px solid rgba(255,0,85,0.2); padding: 15px 20px; font-size: 1.2rem; tracking: 5px; }
+        .chat-messages { flex-1; overflow-y: scroll; scrollbar-width: none; padding: 10px 20px; space-y: 10px; }
+        .chat-messages::-webkit-scrollbar { display: none; }
+        .message-card { background: rgba(255, 255, 255, 0.03); border-radius: 15px; padding: 10px 15px; border: 1px solid rgba(255,255,85,0.1); display: flex; gap: 10px; animation: message-fade 0.5s ease-out; }
+        @keyframes message-fade { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        .user-id { font-family: 'Orbitron'; color: var(--neon-pink); font-size: 10px; opacity: 0.8; }
+        .message-text { font-size: 14px; opacity: 0.9; }
+        
+        .chat-input-area { border-t: 2px solid rgba(255,0,85,0.2); padding: 15px 20px; display: flex; gap: 15px; items-center; }
+        #msg-input { flex-1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,0,85,0.3); border-radius: 15px; padding: 15px; color: #fff; outline: none; transition: 0.3s; }
+        #msg-input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
+        .send-btn { width: 60px; height: 60px; background: rgba(0,0,0,0.6); border: 2px solid var(--neon-pink); border-radius: 15px; display: flex; items-center; justify-content: center; color: var(--neon-pink); cursor: pointer; transition: 0.3s; }
+        .send-btn:active { transform: scale(0.9); }
+
+        /* الواجهة الضخمة والضوضائية */
+        .glass-island { background: var(--glass-noise); backdrop-filter: blur(25px) saturate(200%); border: 2px solid rgba(255, 0, 85, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: glass-shake 1s infinite alternate; }
+        
+        @keyframes glass-shake { 0% { transform: translate(0,0); } 100% { transform: translate(2px, 2px); } }
+
+        /* البار السفلي الضخم */
+        .maximalist-dock { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            width: 85%; max-width: 500px; height: 85px; 
+            border-radius: 40px; display: flex; justify-content: space-around; items-center; z-index: 1000;
+        }
+        .maximalist-core-action { 
+            width: 80px; height: 80px; background: linear-gradient(135deg, #ff0055, #800035); 
+            border-radius: 50%; display: flex; items-center; justify-content: center; 
+            transform: translateY(-30px); box-shadow: 0 15px 35px rgba(255, 0, 106, 0.6); border: 6px solid var(--deep-void); cursor: pointer; animation: plus-glow 1s infinite alternate;
         }
 
-        /* لوحة التحكم بالحذف */
-        #admin-panel { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.98); padding: 25px; overflow-y: auto; }
-        .admin-header { font-family: 'Orbitron'; color: var(--ultra-pink); display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-        .thumb-box { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid #333; height: 220px; transition: 0.3s; }
-        .thumb-box:hover { border-color: var(--ultra-pink); }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: var(--ultra-pink); color: #fff; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        @keyframes plus-glow { 0% { box-shadow: 0 10px 20px rgba(255, 0, 85, 0.5); } 100% { box-shadow: 0 20px 40px rgba(255, 0, 85, 0.8); } }
+
+        /* لوحة التحكم الضخمة والصاخبة */
+        #maximalist-deck { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(3,0,1,0.98); backdrop-filter: blur(40px); padding: 30px; overflow-y: auto; }
+        .deck-header { font-family: 'Orbitron'; color: var(--neon-pink); display: flex; justify-content: space-between; border-b: 2px solid rgba(255,0,85,0.2); pb: 4; mb: 8; }
+        .grid-capsule { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; pb: 40; }
+        .video-thumbnail { position: relative; border-radius: 30px; overflow: hidden; border: 2px solid rgba(255,0,85,0.2); height: 250px; transition: 0.3s; }
+        .video-thumbnail video { pointer-events: none; }
+        .erase-btn { position: absolute; bottom: 15px; right: 15px; background: rgba(255, 0, 85, 0.9); width: 45px; height: 45px; border-radius: 15px; flex; items-center; justify-content: center; font-size: 15px; }
 
     </style>
 </head>
 <body>
 
-    <div id="ultra-loader">
-        <div class="ultra-spinner"></div>
-        <div class="absolute mt-32 font-[Orbitron] text-xs tracking-[5px] text-pink-600 animate-pulse">ULTRA PLUS ACTIVATED</div>
-    </div>
+    <div id="portal"><div class="portal-ring"></div><p class="portal-text">GENESIS</p></div>
 
-    <div class="ultra-bg"></div>
-
-    <header class="fixed top-0 w-full z-[500] p-6 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></div>
-            <span class="font-[Orbitron] font-black text-xl tracking-tighter">GENESIS <span class="text-pink-500">+</span></span>
+    <header class="fixed top-0 w-full z-[2000] p-6 flex justify-between items-center bg-gradient-to-b from-black to-transparent">
+        <div class="glass-island px-8 py-3 rounded-full flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+            <div class="w-3 h-3 rounded-full bg-pink-500 animate-pulse"></div>
+            <span class="font-[Orbitron] text-pink-500 font-bold tracking-tighter text-2xl">GENESIS.AI</span>
         </div>
-        <div class="ultra-icon w-10 h-10" onclick="toggleAdmin()">
-            <i class="fas fa-shapes text-xs"></i>
+        <div class="glass-island w-12 h-12 rounded-full flex items-center justify-center cursor-pointer" onclick="toggleDeck()">
+            <i class="fas fa-satellite text-pink-500 text-sm animate-spin"></i>
         </div>
     </header>
 
-    <main class="ultra-feed" id="main-feed">
-        <div class="h-full flex items-center justify-center opacity-30 italic">جاري تحميل التغذية البصرية...</div>
+    <main class="maximalist-stream" id="main-stream">
+        <div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 animate-pulse tracking-[10px] text-2xl">SYNCING</div>
     </main>
 
-    <nav class="ultra-nav">
-        <div class="flex flex-col items-center opacity-40"><i class="fas fa-home text-xl"></i></div>
-        <div class="flex flex-col items-center opacity-40"><i class="fas fa-search text-xl"></i></div>
-        <div class="center-action" id="upload-trigger"><i class="fas fa-plus text-white text-2xl"></i></div>
-        <div class="flex flex-col items-center opacity-40"><i class="fas fa-comment-alt text-xl"></i></div>
-        <div class="flex flex-col items-center opacity-40"><i class="fas fa-user-circle text-xl"></i></div>
+    <nav class="maximalist-dock glass-island">
+        <i class="fas fa-atom text-2xl opacity-40 hover:opacity-100 transition-all cursor-pointer"></i>
+        <i class="fas fa-network-wired text-2xl opacity-40 hover:opacity-100 transition-all cursor-pointer"></i>
+        <div class="maximalist-core-action" id="upload-action"><i class="fas fa-plus text-white text-3xl"></i></div>
+        <i class="fas fa-terminal text-2xl opacity-40 hover:opacity-100 transition-all cursor-pointer"></i>
+        <i class="fas fa-share-nodes text-2xl opacity-40 hover:opacity-100 transition-all cursor-pointer"></i>
     </nav>
 
-    <div id="admin-panel">
-        <div class="admin-header">
-            <h2 class="text-xl font-black">SYSTEM_ADMIN</h2>
-            <i class="fas fa-times-circle text-2xl" onclick="toggleAdmin()"></i>
+    <div id="maximalist-deck">
+        <div class="deck-header">
+            <h2 class="text-2xl font-black tracking-widest">COMMANDER_DECK</h2>
+            <i class="fas fa-times-circle text-3xl text-pink-500 cursor-pointer" onclick="toggleDeck()"></i>
         </div>
-        <div id="admin-grid" class="grid grid-cols-2 gap-4 pb-32"></div>
+        <div id="deck-content" class="grid-capsule"></div>
     </div>
 
     <script>
+        // إعدادات القاعدة - يرجى التأكد من الرابط
         const firebaseConfig = { databaseURL: "https://project-717e4-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // إخفاء التحميل
-        window.onload = () => { setTimeout(() => { document.getElementById('ultra-loader').style.opacity = '0'; setTimeout(() => document.getElementById('ultra-loader').remove(), 800); }, 2000); };
+        // معرف المستخدم العشوائي (لتحديد الرسائل)
+        const SHADOW_ID = localStorage.getItem('shadow_uid') || 'VOID_' + Math.random().toString(36).substr(2, 4).toUpperCase();
+        localStorage.setItem('shadow_uid', SHADOW_ID);
 
+        // إخفاء شاشة الدخول الهجومية
+        window.onload = () => { setTimeout(() => { document.getElementById('portal').style.opacity = '0'; setTimeout(() => document.getElementById('portal').remove(), 1200); }, 2000); };
+
+        // جلب البيانات بسرعة الضوء
         db.ref('videos').on('value', (snap) => {
-            const feed = document.getElementById('main-feed');
-            const grid = document.getElementById('admin-grid');
+            const stream = document.getElementById('main-stream');
+            const deck = document.getElementById('deck-content');
             const data = snap.val();
             
             if(!data) {
-                feed.innerHTML = '<div class="h-full flex items-center justify-center text-pink-900 font-bold">ارفع أول فيديو لتفعيل النظام</div>';
+                stream.innerHTML = '<div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 tracking-[10px] text-2xl">EMPTY_VOID</div>';
                 return;
             }
 
-            let fHtml = ''; let gHtml = '';
+            let sHtml = ''; let dHtml = '';
             Object.keys(data).reverse().forEach(id => {
                 const v = data[id];
-                fHtml += `
-                    <div class="video-card">
-                        <video loop playsinline src="${v.url}" onclick="this.paused?this.play():this.pause()"></video>
-                        <div class="glass-controls">
-                            <div class="ultra-icon" onclick="like('${id}')"><i class="fas fa-heart"></i><span class="stat-text">${v.likes || 0}</span></div>
-                            <div class="ultra-icon" onclick="share()"><i class="fas fa-share-nodes"></i></div>
-                            <div class="ultra-icon" onclick="window.open('https://google.com')"><i class="fas fa-fire-burner text-yellow-500"></i></div>
+                sHtml += `
+                    <div class="maximalist-slice">
+                        <div class="video-wrapper">
+                            <video loop playsinline preload="auto" src="${v.url}" onclick="handleVideoTap(event, '${id}')"></video>
+                            <div class="left-hud HUD_INTERFACE">
+                                <div class="maximalist-icon LIKE_BTN" onclick="likeVideo('${id}')"><i class="fas fa-heart"></i><span class="stat-text">${v.likes || 0}</span></div>
+                                <div class="maximalist-icon SHARE_BTN" onclick="shareApp()"><i class="fas fa-wave-square"></i></div>
+                            </div>
+                        </div>
+                        
+                        <div class="live-chat-panel LIVE_CHAT_CORE">
+                            <div class="chat-header border_neon">
+                                <span class="animate-pulse tracking-widest text-pink-400">GLOBAL_CHAT_STREAM</span>
+                                <i class="fas fa-broadcast-tower text-pink-600"></i>
+                            </div>
+                            <div class="chat-messages CHAT_MSGS_VOID" id="msgs-${id}"></div>
+                            <div class="chat-input-area border_neon">
+                                <input type="text" id="input-${id}" placeholder="اكتب في السديم..." onkeydown="handleChatSubmit(event, '${id}')">
+                                <button class="send-btn" onclick="sendLiveMessage('${id}')"><i class="fas fa-paper-plane text-xl"></i></button>
+                            </div>
                         </div>
                     </div>`;
-                gHtml += `
-                    <div class="thumb-box">
-                        <video src="${v.url}#t=1" muted></video>
-                        <button class="delete-btn" onclick="deleteVideo('${id}')"><i class="fas fa-trash-alt"></i></button>
+                dHtml += `
+                    <div class="video-thumbnail">
+                        <video src="${v.url}#t=1" muted preload="metadata"></video>
+                        <button class="erase-btn flex items-center justify-center" onclick="deleteVideo('${id}')"><i class="fas fa-trash-alt text-white"></i></button>
                     </div>`;
             });
-            feed.innerHTML = fHtml;
-            grid.innerHTML = gHtml;
-            setupObserver();
+            stream.innerHTML = sHtml;
+            deck.innerHTML = dHtml;
+            setupStreamObserver();
+            setupLiveChatListeners(Object.keys(data));
         });
 
-        function setupObserver() {
+        // محرك تشغيل الفيديوهات الصاخب
+        function setupStreamObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(e => {
                     const vid = e.target.querySelector('video');
-                    if(e.isIntersecting) vid?.play().catch(()=>{});
-                    else vid?.pause();
+                    if(e.isIntersecting) {
+                        e.target.classList.add('active');
+                        vid?.play().catch(()=>{});
+                        // جلب رسائل الدردشة عند الوصول للفيديو
+                        const id = vid?.getAttribute('src').split('/')[3]; // جلب ID الفيديو من الـ URL (Cloudinary)
+                        // هذا يحتاج لطريقة أفضل، سنعتمد على ה ID الذي مررناه بالدالة handleChatSubmit
+                    } else {
+                        e.target.classList.remove('active');
+                        vid?.pause();
+                    }
                 });
             }, { threshold: 0.7 });
-            document.querySelectorAll('.video-card').forEach(c => observer.observe(c));
+            document.querySelectorAll('.maximalist-slice').forEach(s => observer.observe(s));
         }
 
-        function toggleAdmin() { 
-            const p = document.getElementById('admin-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        // التعامل مع النقر المزدوج لظهور القلوب
+        let lastTap = 0;
+        function handleVideoTap(e, id) {
+            const now = Date.now();
+            const v = e.target;
+            
+            if (now - lastTap < 300) { // النقر المزدوج
+                likeVideo(id);
+                // تأثير القلوب المتطايرة
+                for (let i = 0; i < 15; i++) { createFloatingHeart(v); }
+            } else { // النقر الفردي (التشغيل/الإيقاف)
+                v.paused ? v.play().catch(()=>{}) : v.pause();
+            }
+            lastTap = now;
         }
 
-        function like(id) { db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); }
-        function deleteVideo(id) { if(confirm('تأكيد الحذف من النظام؟')) db.ref(`videos/${id}`).remove(); }
-        function share() { if(navigator.share) navigator.share({url: window.location.href}); }
+        // إنشاء قلوب متطايرة
+        function createFloatingHeart(videoEl) {
+            const heart = document.createElement('i');
+            heart.className = 'fas fa-heart floating-heart';
+            heart.style.left = (Math.random() * 80 + 10) + '%';
+            heart.style.top = (Math.random() * 80 + 10) + '%';
+            heart.style.animationDelay = (Math.random() * 0.5) + 's';
+            videoEl.parentElement.appendChild(heart);
+            setTimeout(() => heart.remove(), 1000);
+        }
 
+        // نظام الدردشة الحقيقية (الحية)
+        function setupLiveChatListeners(videoIds) {
+            videoIds.forEach(vid => {
+                const msgBox = document.getElementById(`msgs-${vid}`);
+                if (!msgBox) return;
+
+                db.ref(`live_chats/${vid}`).limitToLast(20).on('value', snap => {
+                    const messages = snap.val();
+                    msgBox.innerHTML = '';
+                    if(!messages) return;
+                    
+                    Object.keys(messages).forEach(mId => {
+                        const m = messages[mId];
+                        msgBox.innerHTML += `
+                            <div class="message-card ${m.u === SHADOW_ID ? 'border_neon' : ''}">
+                                <div class="flex flex-col flex-1">
+                                    <span class="user-id tracking-widest">${m.u}</span>
+                                    <p class="message-text">${m.t}</p>
+                                </div>
+                                <i class="fas fa-comment-dots text-pink-900 opacity-30 mt-1"></i>
+                            </div>`;
+                    });
+                    msgBox.scrollTop = msgBox.scrollHeight;
+                });
+            });
+        }
+
+        function handleChatSubmit(e, vid) {
+            if (e.key === 'Enter') { sendLiveMessage(vid); }
+        }
+
+        function sendLiveMessage(vid) {
+            const input = document.getElementById(`input-${vid}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            db.ref(`live_chats/${vid}`).push({
+                u: SHADOW_ID,
+                t: text,
+                time: ServerValue.TIMESTAMP // اختيار خيار من الـ SDK المحدث
+            });
+            input.value = '';
+        }
+
+        // وظائف الأزرار
+        function toggleDeck() { 
+            const d = document.getElementById('maximalist-deck');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function likeVideo(id) { db.ref(`videos/${id}/likes`).transaction(l => (l || 0) + 1); }
+        function deleteVideo(id) { if(confirm('تأكيد الحذف نهائياً؟')) db.ref(`videos/${id}`).remove(); }
+        function shareApp() { if(navigator.share) navigator.share({url: window.location.href}); }
+
+        // أداة الرفع الصاخبة
         const widget = cloudinary.createUploadWidget({ cloudName: "dssk5tabb", uploadPreset: "bjebvo5p" }, (err, res) => {
             if (!err && res.event === "success") { db.ref('videos/').push({ url: res.info.secure_url, likes: 0 }); }
         });
-        document.getElementById("upload-trigger").onclick = () => widget.open();
+        document.getElementById("upload-action").onclick = () => widget.open();
 
     </script>
 </body>
