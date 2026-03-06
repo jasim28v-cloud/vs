@@ -3,111 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GENESIS | MAXIMALIST VOID</title>
+    <title>GENESIS | GNOME ULTRA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cairo:wght@200;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Cairo:wght@200;700&display=swap');
         
         :root { 
-            --neon-pink: #ff0055; 
-            --neon-glow: rgba(255, 0, 85, 0.8);
-            --deep-void: #000;
-            --glass-noise: rgba(255, 0, 85, 0.05);
+            --ultra-pink: #ff006a; 
+            --deep-space: #050002;
+            --liquid-glass: rgba(255, 45, 85, 0.03);
         }
         
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--deep-void); color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--deep-space); color: #fff; overflow: hidden; font-family: 'Cairo', sans-serif; perspective: 1000px; }
 
-        /* شاشة الدخول الهجومية الصاخبة */
-        #portal { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.8, 0, 0.2, 1); }
-        .portal-ring { width: 150px; height: 150px; border: 5px solid transparent; border-top: 5px solid var(--neon-pink); border-right: 5px solid var(--neon-pink); border-radius: 50%; animation: spin 0.4s linear infinite; }
-        .portal-text { margin-top: 50px; font-family: 'Orbitron'; font-size: 50px; color: var(--neon-pink); tracking: 20px; text-shadow: 0 0 20px var(--neon-pink); animation: text-shake 0.5s infinite; }
+        /* سائل الخلفية الديناميكي - جنوم */
+        .gnome-plasma { position: fixed; inset: 0; background: radial-gradient(circle at 70% 20%, #150005 0%, #000 100%); z-index: -1; filter: contrast(120%); }
+        .gnome-glow { position: absolute; width: 400px; height: 400px; background: var(--ultra-pink); filter: blur(200px); opacity: 0.1; border-radius: 50%; animation: plasma-float 15s infinite alternate; }
+
+        @keyframes plasma-float { 0% { transform: translate(-100px, -50px) scale(1); } 100% { transform: translate(150px, 100px) scale(1.1); } }
+
+        /* شاشة الدخول البيومترية */
+        #portal { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1.2s cubic-bezier(0.6, 0, 0.4, 1); }
+        .portal-ring { width: 90px; height: 90px; border: 1px solid transparent; border-top: 1px solid var(--ultra-pink); border-right: 1px solid var(--ultra-pink); border-radius: 50%; animation: spin 0.5s linear infinite; }
+        .portal-text { margin-top: 30px; font-family: 'Orbitron'; font-size: 10px; color: var(--ultra-pink); tracking: 10px; text-shadow: 0 0 10px var(--ultra-pink); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes text-shake { 0% { transform: translate(0,0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, -5px); } 80% { transform: translate(5px, 5px); } 100% { transform: translate(0,0); } }
 
-        /* محرك السكرول الضخم */
-        .maximalist-stream { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        .maximalist-stream::-webkit-scrollbar { display: none; }
+        /* محرك السكرول السائل */
+        .ultra-stream { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .ultra-stream::-webkit-scrollbar { display: none; }
         
-        .maximalist-slice { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; object-fit: cover; filter: brightness(1) contrast(1.2); transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(1); }
-        .maximalist-slice.active video { filter: brightness(1.2) contrast(1); transform: scale(1.05); }
+        .stream-slice { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9) contrast(1.1); transition: 1s cubic-bezier(0.2, 1, 0.3, 1); transform: scale(1.05); }
+        .stream-slice.active video { filter: brightness(1) contrast(1); transform: scale(1); }
 
-        /* واجهة المستخدم الضخمة والضوضائية */
-        .glass-island { background: var(--glass-noise); backdrop-filter: blur(25px) saturate(200%); border: 2px solid rgba(255, 0, 85, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: glass-shake 1s infinite alternate; }
+        /* واجهة المستخدم جنوم (Liquid Glass) */
+        .glass-island { background: var(--liquid-glass); backdrop-filter: blur(25px) saturate(180%); border: 1px solid rgba(255, 0, 106, 0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         
-        @keyframes glass-shake { 0% { transform: translate(0,0); } 100% { transform: translate(2px, 2px); } }
-
-        .side-bar { position: absolute; right: 20px; bottom: 150px; display: flex; flex-direction: column; gap: 30px; z-index: 100; }
-        .maximalist-icon { 
-            width: 70px; height: 70px; border-radius: 25px; 
+        .sidebar-hud { position: absolute; right: 20px; bottom: 130px; display: flex; flex-direction: column; gap: 20px; z-index: 100; }
+        .hud-icon { 
+            width: 55px; height: 55px; border-radius: 20px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.6); border: 2px solid rgba(255,0,85,0.4);
-            color: #fff; transition: 0.4s; pointer-events: auto; animation: icon-float 2s infinite alternate;
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,0,106,0.2);
+            color: #fff; transition: 0.4s; pointer-events: auto;
         }
-        .maximalist-icon i { font-size: 1.8rem; filter: drop-shadow(0 0 10px var(--neon-pink)); }
-        .maximalist-icon:active { transform: scale(0.9) rotate(5deg); border-color: var(--neon-pink); }
-        .stat-text { font-size: 12px; font-weight: bold; margin-top: 5px; font-family: 'Orbitron'; color: var(--neon-pink); }
+        .hud-icon i { font-size: 1.5rem; filter: drop-shadow(0 0 8px var(--ultra-pink)); }
+        .hud-icon:active { transform: scale(0.9) rotate(5deg); border-color: var(--ultra-pink); }
 
-        @keyframes icon-float { 0% { transform: translate(0,0); } 100% { transform: translate(0px, 5px); } }
-
-        /* البار السفلي الضخم */
-        .maximalist-dock { 
+        /* البار السفلي "جنوم الألترا" */
+        .floating-dock { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            width: 85%; max-width: 500px; height: 85px; 
+            width: 85%; max-width: 450px; height: 75px; 
             border-radius: 40px; display: flex; justify-content: space-around; items-center; z-index: 1000;
         }
-        .maximalist-core-action { 
-            width: 80px; height: 80px; background: linear-gradient(135deg, #ff0055, #800035); 
+        .core-action { 
+            width: 60px; height: 60px; background: linear-gradient(135deg, #ff006a, #800035); 
             border-radius: 50%; display: flex; items-center; justify-content: center; 
-            transform: translateY(-30px); box-shadow: 0 15px 35px rgba(255, 0, 85, 0.6); border: 6px solid var(--deep-void); cursor: pointer; animation: plus-glow 1s infinite alternate;
+            transform: translateY(-25px); box-shadow: 0 10px 25px rgba(255, 0, 106, 0.5); border: 4px solid var(--deep-space); transition: 0.3s;
         }
 
-        @keyframes plus-glow { 0% { box-shadow: 0 10px 20px rgba(255, 0, 85, 0.5); } 100% { box-shadow: 0 20px 40px rgba(255, 0, 85, 0.8); } }
-
-        /* لوحة التحكم الضخمة والصاخبة */
-        #maximalist-deck { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(3,0,1,0.98); backdrop-filter: blur(40px); padding: 30px; overflow-y: auto; }
-        .deck-header { font-family: 'Orbitron'; color: var(--neon-pink); display: flex; justify-content: space-between; border-b: 2px solid rgba(255,0,85,0.2); pb: 4; mb: 8; }
-        .grid-capsule { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; pb: 40; }
-        .video-thumbnail { position: relative; border-radius: 30px; overflow: hidden; border: 2px solid rgba(255,0,85,0.2); height: 250px; transition: 0.3s; }
+        /* لوحة التحكم الاحترافية - جنوم */
+        #control-deck { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(3,0,1,0.98); backdrop-filter: blur(40px); padding: 30px; overflow-y: auto; }
+        .deck-header { font-family: 'Orbitron'; color: var(--ultra-pink); display: flex; justify-content: space-between; border-b: 1px solid rgba(255,0,106,0.1); pb: 4; mb: 6; }
+        .grid-capsule { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; pb: 32; }
+        .video-thumbnail { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,0,106,0.1); height: 210px; transition: 0.3s; }
         .video-thumbnail video { pointer-events: none; }
-        .erase-btn { position: absolute; bottom: 15px; right: 15px; background: rgba(255, 0, 85, 0.9); width: 45px; height: 45px; border-radius: 15px; flex; items-center; justify-content: center; font-size: 15px; }
+        .erase-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 0, 106, 0.8); width: 35px; height: 35px; border-radius: 10px; flex; items-center; justify-content: center; font-size: 12px; }
 
     </style>
 </head>
 <body>
 
-    <div id="portal"><div class="portal-ring"></div><p class="portal-text">GENESIS</p></div>
+    <div id="portal"><div class="portal-ring"></div><p class="portal-text animate-pulse">GENESIS_GNOME_ULTRA</p></div>
+
+    <div class="gnome-plasma"><div class="gnome-glow"></div></div>
 
     <header class="fixed top-0 w-full z-[2000] p-6 flex justify-between items-center">
-        <div class="glass-island px-8 py-3 rounded-full flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-pink-500 animate-pulse"></div>
-            <span class="font-[Orbitron] text-pink-500 font-bold tracking-tighter text-2xl">GENESIS.AI</span>
+        <div class="glass-island px-6 py-2 rounded-full flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></div>
+            <span class="font-[Orbitron] text-pink-500 font-bold tracking-tighter">GENESIS.AI</span>
         </div>
-        <div class="glass-island w-12 h-12 rounded-full flex items-center justify-center" onclick="toggleDeck()">
-            <i class="fas fa-ghost text-pink-500 text-xs"></i>
+        <div class="glass-island w-10 h-10 rounded-full flex items-center justify-center" onclick="toggleDeck()">
+            <i class="fas fa-satellite text-pink-500 text-xs"></i>
         </div>
     </header>
 
-    <main class="maximalist-stream" id="main-stream">
-        <div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 animate-pulse tracking-[10px] text-2xl">SYNCING</div>
+    <main class="ultra-stream" id="main-stream">
+        <div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 animate-pulse tracking-[5px]">SYNCING_STREAM</div>
     </main>
 
-    <nav class="maximalist-dock glass-island">
-        <i class="fas fa-search text-2xl opacity-40 hover:opacity-100 transition-all"></i>
-        <i class="fas fa-network-wired text-2xl opacity-40 hover:opacity-100 transition-all"></i>
-        <div class="maximalist-core-action" id="upload-action"><i class="fas fa-plus text-white text-3xl"></i></div>
-        <i class="fas fa-at text-2xl opacity-40 hover:opacity-100 transition-all"></i>
-        <i class="fas fa-user text-2xl opacity-40 hover:opacity-100 transition-all"></i>
+    <nav class="floating-dock glass-island">
+        <i class="fas fa-network-wired text-xl opacity-40 hover:opacity-100 transition-all"></i>
+        <i class="fas fa-bolt text-xl opacity-40 hover:opacity-100 transition-all"></i>
+        <div class="core-action" id="upload-action"><i class="fas fa-plus text-white text-2xl"></i></div>
+        <i class="fas fa-atom text-xl opacity-40 hover:opacity-100 transition-all"></i>
+        <i class="fas fa-share-nodes text-xl opacity-40 hover:opacity-100 transition-all"></i>
     </nav>
 
-    <div id="maximalist-deck">
+    <div id="control-deck">
         <div class="deck-header">
-            <h2 class="text-2xl font-black tracking-widest">COMMANDER_DECK</h2>
-            <i class="fas fa-times-circle text-3xl text-pink-500 cursor-pointer" onclick="toggleDeck()"></i>
+            <h2 class="text-xl font-black tracking-widest">CONTROL_DECK</h2>
+            <i class="fas fa-power-off text-2xl text-pink-500 cursor-pointer" onclick="toggleDeck()"></i>
         </div>
         <div id="deck-content" class="grid-capsule"></div>
     </div>
@@ -117,17 +116,17 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // إخفاء شاشة الدخول الهجومية
+        // إخفاء التحميل البيومتري
         window.onload = () => { setTimeout(() => { document.getElementById('portal').style.opacity = '0'; setTimeout(() => document.getElementById('portal').remove(), 1200); }, 2000); };
 
-        // جلب البيانات بسرعة الضوء
+        // جلب البيانات بسرعة جنوم
         db.ref('videos').on('value', (snap) => {
             const stream = document.getElementById('main-stream');
             const deck = document.getElementById('deck-content');
             const data = snap.val();
             
             if(!data) {
-                stream.innerHTML = '<div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 tracking-[10px] text-2xl">EMPTY</div>';
+                stream.innerHTML = '<div class="h-full flex items-center justify-center font-[Orbitron] text-pink-900 tracking-[5px]">STREAM_EMPTY</div>';
                 return;
             }
 
@@ -135,14 +134,12 @@
             Object.keys(data).reverse().forEach(id => {
                 const v = data[id];
                 sHtml += `
-                    <div class="maximalist-slice">
+                    <div class="stream-slice">
                         <video loop playsinline preload="auto" src="${v.url}" onclick="this.paused?this.play():this.pause()"></video>
-                        <div class="side-bar">
-                            <div class="flex flex-col items-center">
-                                <div class="maximalist-icon" onclick="like('${id}')"><i class="fas fa-heart"></i><span class="stat-text">${v.likes || 0}</span></div>
-                            </div>
-                            <div class="maximalist-icon" onclick="shareApp()"><i class="fas fa-expand"></i></div>
-                            <div class="maximalist-icon" onclick="window.open('https://google.com')"><i class="fas fa-fire-burner text-yellow-500"></i></div>
+                        <div class="sidebar-hud">
+                            <div class="hud-icon" onclick="like('${id}')"><i class="fas fa-heart"></i><span class="text-[10px] mt-1">${v.likes || 0}</span></div>
+                            <div class="hud-icon" onclick="shareApp()"><i class="fas fa-wave-square"></i></div>
+                            <div class="hud-icon" onclick="window.open('https://google.com')"><i class="fas fa-radiation-alt text-yellow-500"></i></div>
                         </div>
                     </div>`;
                 dHtml += `
@@ -156,7 +153,7 @@
             setupStreamObserver();
         });
 
-        // محرك تشغيل الفيديوهات الصاخب
+        // محرك تشغيل الفيديوهات السائل
         function setupStreamObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(e => {
@@ -170,11 +167,11 @@
                     }
                 });
             }, { threshold: 0.7 });
-            document.querySelectorAll('.maximalist-slice').forEach(s => observer.observe(s));
+            document.querySelectorAll('.stream-slice').forEach(s => observer.observe(s));
         }
 
         function toggleDeck() { 
-            const d = document.getElementById('maximalist-deck');
+            const d = document.getElementById('control-deck');
             d.style.display = d.style.display === 'block' ? 'none' : 'block';
         }
 
@@ -182,7 +179,7 @@
         function deleteVideo(id) { if(confirm('SURE?')) db.ref(`videos/${id}`).remove(); }
         function shareApp() { if(navigator.share) navigator.share({url: window.location.href}); }
 
-        // أداة الرفع الصاخبة
+        // أداة الرفع المتقدمة
         const widget = cloudinary.createUploadWidget({ cloudName: "dssk5tabb", uploadPreset: "bjebvo5p" }, (err, res) => {
             if (!err && res.event === "success") { db.ref('videos/').push({ url: res.info.secure_url, likes: 0 }); }
         });
